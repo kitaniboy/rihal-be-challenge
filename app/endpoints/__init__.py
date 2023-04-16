@@ -2,14 +2,15 @@ from __future__ import annotations
 from rest_framework.decorators import api_view, permission_classes
 from django.core.files.uploadedfile import UploadedFile
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework import status
 from PyPDF2 import PdfFileReader
 from io import BytesIO
 
+from firebase import firebase_bucket
 from app.models import Document
 from app.serializers import (
     OccurrencesSerializer,
@@ -27,9 +28,12 @@ from app.miners import (
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_document(request: Request):
-    user = request.user
-    pdf_file: UploadedFile = request.FILES.get('file')
     try:
+        user = request.user
+        pdf_file: UploadedFile = request.FILES.get('file')
+        blob = firebase_bucket.blob(pdf_file.name)
+        blob.upload_from_file(pdf_file)
+
         pdf_reader = PdfFileReader(BytesIO(pdf_file.read()))
         sentences = '\n'.join(get_pasrsed_sentences(pdf_reader))
 
@@ -46,9 +50,9 @@ def add_document(request: Request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    except Exception:
+    except Exception as e:
         return Response(
-            'Error while processing PDF file.',
+            f'Error while processing PDF file: {e}',
             status=status.HTTP_400_BAD_REQUEST
         )
 
