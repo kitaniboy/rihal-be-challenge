@@ -1,6 +1,8 @@
 from __future__ import annotations
+from rest_framework.decorators import api_view, permission_classes
 from django.core.files.uploadedfile import UploadedFile
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from django.http import JsonResponse
 from django.utils import timezone
@@ -23,13 +25,16 @@ from app.miners import (
 
 
 @api_view(['POST'])
-def add_document(request):
+@permission_classes([IsAuthenticated])
+def add_document(request: Request):
+    user = request.user
     pdf_file: UploadedFile = request.FILES.get('file')
     try:
         pdf_reader = PdfFileReader(BytesIO(pdf_file.read()))
         sentences = '\n'.join(get_pasrsed_sentences(pdf_reader))
 
         document = Document(
+            user=user,
             name=pdf_file.name,
             upload_datetime=timezone.now(),
             number_of_pages=pdf_reader.numPages,
@@ -49,6 +54,7 @@ def add_document(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def list_documents(request):
     documents = Document.objects.all()
     serializer = DocumentSerializer(documents, many=True)
@@ -56,6 +62,7 @@ def list_documents(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def word_search(request):
     serializer = SearchSerializer(data=request.data)
 
@@ -82,6 +89,7 @@ def word_search(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_page(request, id, page_number):
     try:
         document = Document.objects.get(pk=id)
@@ -99,6 +107,7 @@ def get_page(request, id, page_number):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_sentences(request, id):
     try:
         document = Document.objects.get(pk=id)
@@ -110,6 +119,7 @@ def get_sentences(request, id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_occurrences(request, id):
     try:
         serializer = OccurrencesSerializer(data=request.data)
@@ -134,6 +144,7 @@ def get_occurrences(request, id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_most_common(request, id):
     try:
         serializer = TopSerializer(data=request.data)
