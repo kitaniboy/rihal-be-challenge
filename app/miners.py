@@ -13,23 +13,26 @@ stop_words = set(stopwords.words('english'))
 
 def get_pasrsed_sentences(pdf_reader: PdfFileReader):
     num_pages = len(pdf_reader.pages)
+    full_text = ''
 
     for page_number in range(num_pages):
         page = pdf_reader.pages[page_number]
-        page_text = page.extract_text()
+        page_text = page.extract_text().replace('\n', '').replace('\\n', '')
+        full_text += page_text
 
-        # Tokenize the page text into sentences
-        sentences = sent_tokenize(page_text)
+    # Tokenize the page text into sentences
+    sentences = sent_tokenize(full_text)
 
-        yield from sentences
+    yield from sentences
 
 
 def keyword_search(text: str, keyword: str):
+    keyword_lower = keyword.lower()
     # Check each sentence for the keyword
     return [
         sentence
-        for sentence in text.split('\n')
-        if keyword.lower() in sentence.lower()
+        for sentence in text.split('#$#')
+        if keyword_lower in sentence.lower()
     ]
 
 
@@ -46,6 +49,9 @@ def get_top_words(text: str, num_words=5):
 
     # Count word occurrences and find the top num_words
     word_counts = Counter(filtered_words)
-    top_words = word_counts.most_common(num_words)
+    top_words_counts = word_counts.most_common(num_words)
 
-    return dict(top_words)
+    return [
+        {'word': word, 'count': count}
+        for word, count in top_words_counts
+    ]

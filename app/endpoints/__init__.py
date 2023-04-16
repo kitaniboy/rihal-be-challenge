@@ -25,6 +25,8 @@ from app.miners import (
     get_top_words,
 )
 
+SENTENCE_DELIMETER = '#$#'
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -44,7 +46,7 @@ def add_document(request: Request):
 
         pdf_file.seek(0)  # Reset the file pointer to the beginning of the file
         pdf_reader = PdfReader(BytesIO(pdf_file.read()))
-        sentences = '\n'.join(get_pasrsed_sentences(pdf_reader))
+        sentences = SENTENCE_DELIMETER.join(get_pasrsed_sentences(pdf_reader))
 
         document = Document(
             user=user,
@@ -134,7 +136,7 @@ def get_page(request, id, page_number):
 def get_sentences(request, id):
     try:
         document = Document.objects.get(pk=id)
-        sentences = document.sentences.split('\n')
+        sentences = document.sentences.split(SENTENCE_DELIMETER)
         return JsonResponse(sentences, safe=False)
 
     except Document.DoesNotExist as e:

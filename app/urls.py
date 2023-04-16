@@ -25,6 +25,7 @@ from app.endpoints.DocumentEndpoint import DocumentEndpoint
 from app.endpoints.authentication import register
 from app.endpoints import (
     get_occurrences,
+    get_most_common,
     list_documents,
     get_sentences,
     add_document,
@@ -41,7 +42,8 @@ urlpatterns = [
     path('document/<int:id>', DocumentEndpoint.as_view(), name='document'),
     path('document/<int:id>/page/<int:num>', get_page, name='page'),
     path('document/<int:id>/sentences', get_sentences, name='entences'),
-    path('document/<int:id>/top', get_occurrences, name='occurrences'),
+    path('document/<int:id>/search', get_occurrences, name='search_doc'),
+    path('document/<int:id>/top', get_most_common, name='top'),
     path('register/', register, name='register'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
