@@ -16,6 +16,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from app.endpoints.DocumentEndpoint import DocumentEndpoint
+from app.endpoints import (
+    get_occurrences,
+    list_documents,
+    get_sentences,
+    add_document,
+    word_search,
+    get_page,
+)
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('document/', add_document),
+    path('documents/', list_documents),
+    path('search/', word_search),
+    path('document/<int:id>', DocumentEndpoint.as_view()),
+    path('document/<int:id>/page/<int:num>', get_page),
+    path('document/<int:id>/sentences', get_sentences),
+    path('document/<int:id>/occurrences', get_occurrences),
+    path('document/<int:id>/top', get_occurrences),
 ]
