@@ -1,5 +1,4 @@
 from __future__ import annotations
-from rest_framework.decorators import api_view, permission_classes
 from django.core.files.uploadedfile import UploadedFile
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,8 +6,13 @@ from rest_framework.request import Request
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework import status
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 from io import BytesIO
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+)
+
 
 from firebase import firebase_bucket
 from app.models import Document
@@ -31,24 +35,39 @@ def add_document(request: Request):
     try:
         user = request.user
         pdf_file: UploadedFile = request.FILES.get('file')
-        blob = firebase_bucket.blob(pdf_file.name)
-        blob.upload_from_file(pdf_file)
 
-        pdf_reader = PdfFileReader(BytesIO(pdf_file.read()))
+        if pdf_file is None:
+            raise Exception('PDF file was NOT provided')
+
+        blob = firebase_bucket.blob(pdf_file.name)
+        blob.upload_from_file(
+            pdf_file,
+            content_type=pdf_file.content_type
+        )
+
+        pdf_file.seek(0)  # Reset the file pointer to the beginning of the file
+        pdf_reader = PdfReader(BytesIO(pdf_file.read()))
         sentences = '\n'.join(get_pasrsed_sentences(pdf_reader))
 
         document = Document(
             user=user,
             name=pdf_file.name,
             upload_datetime=timezone.now(),
-            number_of_pages=pdf_reader.numPages,
+            number_of_pages=len(pdf_reader.pages),
             size=pdf_file.size,
             sentences=sentences
         )
 
-        serializer = DocumentSerializer(document)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        document.save()
+        return Response(
+            {
+                'id': document.pk,
+                'upload_datetime': document.upload_datetime,
+                'number_of_pages': document.number_of_pages,
+                'size': document.size,
+            },
+            status=status.HTTP_201_CREATED
+        )
 
     except Exception as e:
         return Response(
@@ -98,8 +117,8 @@ def get_page(request, id, page_number):
     try:
         document = Document.objects.get(pk=id)
 
-        pdf_reader = PdfFileReader(smth)
-        page = pdf_reader.getPage(page_number)
+        pdf_reader = PdfReader(smth)
+        page = pdf_reader.pages[page_number]
 
     except Document.DoesNotExist as e:
         return Response(str(e), status=status.HTTP_404_NOT_FOUND)

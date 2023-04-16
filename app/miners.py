@@ -1,20 +1,22 @@
 from __future__ import annotations
-from nltk import sent_tokenize, word_tokenize
+from nltk import sent_tokenize, word_tokenize, download
 from nltk.corpus import stopwords
 from PyPDF2 import PdfFileReader
 from collections import Counter
 
 
 # Define the stop words
+download('punkt')
+download('stopwords')
 stop_words = set(stopwords.words('english'))
 
 
 def get_pasrsed_sentences(pdf_reader: PdfFileReader):
-    num_pages = pdf_reader.numPages
+    num_pages = len(pdf_reader.pages)
 
-    for page_num in range(num_pages):
-        page = pdf_reader.getPage(page_num)
-        page_text = page.extractText()
+    for page_number in range(num_pages):
+        page = pdf_reader.pages[page_number]
+        page_text = page.extract_text()
 
         # Tokenize the page text into sentences
         sentences = sent_tokenize(page_text)
