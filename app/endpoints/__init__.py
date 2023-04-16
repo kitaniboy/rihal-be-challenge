@@ -92,20 +92,23 @@ def word_search(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    found_sentences = dict()
+    documents_list = []
 
     for document in Document.objects.all():
-        returned_sentences = keyword_search(
+        sentences = keyword_search(
             document.sentences,
             serializer.validated_data['keyword']
         )
 
-        if not returned_sentences:
+        if not sentences:
             continue
 
-        found_sentences[document.pk] = returned_sentences
+        documents_list.append({
+            'id': document.pk,
+            'sentences': sentences
+        })
 
-    return JsonResponse(found_sentences, safe=False)
+    return JsonResponse(documents_list, safe=False)
 
 
 @api_view(['GET'])
