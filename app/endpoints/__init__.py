@@ -1,4 +1,5 @@
 from __future__ import annotations
+from rest_framework.decorators import api_view, permission_classes
 from django.core.files.uploadedfile import UploadedFile
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,10 +9,6 @@ from django.utils import timezone
 from rest_framework import status
 from PyPDF2 import PdfReader
 from io import BytesIO
-from rest_framework.decorators import (
-    api_view,
-    permission_classes,
-)
 
 
 from firebase import firebase_bucket
