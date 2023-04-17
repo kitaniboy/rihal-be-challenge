@@ -40,10 +40,10 @@ The following table describes each endpoint:
 | `documents/` | | Get all PDF files details saved under the user |
 | `search/` | **keyword:** string | Search for a keyword in all PDF documents |
 | `document/<int:id>` | | Get a specific PDF document details |
-| `document/<int:id>/page/<int:num>` | | Get a specific page from a specific document as an image |
+| `document/<int:id>/page/<int:num>` | | Get a specific page from a specific document as an image (`num` is zero indexed)|
 | `document/<int:id>/sentences` | | Get the parsed sentences from a specific document |
-| `document/<int:id>/search` | **keyword:** string | Search for a keyword in a specific PDF document |
 | `document/<int:id>/summary` | **count:** int? | Get a summary limited by **count** (20% of the document default) |
+| `document/<int:id>/search` | **keyword:** string | Search for a keyword in a specific PDF document |
 | `document/<int:id>/top` | **count:** int? | Get most common words (5 words by default) |
 | `register/` | **username:** string <br/> **password:** string | Create a new user |
 | `token/` | **username:** string <br/> **password:** string | Create a new token for the user |

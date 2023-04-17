@@ -5,10 +5,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
 from gensim.summarization import summarize
+from pdf2image.pdf2image import convert_from_bytes
+from PyPDF2 import PdfReader, PdfWriter
+from django.http import FileResponse
 from django.http import JsonResponse
-from django.utils import timezone
+from django.utils.timezone import now
 from rest_framework import status
-from PyPDF2 import PdfReader
 from io import BytesIO
 
 
@@ -34,7 +36,7 @@ SENTENCE_DELIMETER = '#$#'
 @permission_classes([IsAuthenticated])
 def add_document(request: Request):
     try:
-        time_now = timezone.now()
+        time_now = now()
         user = request.user
         pdf_file: UploadedFile = request.FILES.get('file')
 
@@ -56,7 +58,7 @@ def add_document(request: Request):
         document = Document(
             user=user,
             name=pdf_file.name,
-            upload_datetime=timezone_now,
+            upload_datetime=time_now,
             number_of_pages=len(pdf_reader.pages),
             size=pdf_file.size,
             sentences=sentences
@@ -120,7 +122,7 @@ def word_search(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_page(request, id, page_number):
+def get_page(request, id, num):
     try:
         document = Document.objects.get(pk=id)
 
@@ -134,7 +136,24 @@ def get_page(request, id, page_number):
         pdf_bytes.seek(0)
 
         pdf_reader = PdfReader(pdf_bytes)
-        page = pdf_reader.pages[page_number]
+        page = pdf_reader.pages[num]
+
+        pdf_writer = PdfWriter()
+        pdf_writer.add_page(page)
+
+        page_bytes = BytesIO()
+        pdf_writer.write(page_bytes)
+        page_bytes.seek(0)
+
+        images = convert_from_bytes(page_bytes.getvalue())
+        img_bytes = BytesIO()
+        images[0].save(img_bytes, format='PNG')
+        img_bytes.seek(0)
+
+        return FileResponse(
+            img_bytes, content_type='image/png',
+            as_attachment=True, filename=f'{document.name}.png'
+        )
 
     except Document.DoesNotExist as e:
         return Response(str(e), status=status.HTTP_404_NOT_FOUND)
@@ -143,6 +162,8 @@ def get_page(request, id, page_number):
             'Page number was not found',
             status=status.HTTP_404_NOT_FOUND
         )
+    except Exception as e:
+        return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
