@@ -13,12 +13,11 @@ stop_words = set(stopwords.words('english'))
 
 def get_pasrsed_sentences(pdf_reader: PdfFileReader):
     num_pages = len(pdf_reader.pages)
-    full_text = ''
-
-    for page_number in range(num_pages):
-        page = pdf_reader.pages[page_number]
-        page_text = page.extract_text().replace('\n', '').replace('\\n', '')
-        full_text += page_text
+    full_text = ''.join(
+        pdf_reader.pages[page_number].extract_text()
+        .replace('\n', '').replace('\\n', '')
+        for page_number in range(num_pages)
+    )
 
     # Tokenize the page text into sentences
     sentences = sent_tokenize(full_text)

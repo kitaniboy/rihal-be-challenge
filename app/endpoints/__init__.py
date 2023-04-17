@@ -32,13 +32,16 @@ SENTENCE_DELIMETER = '#$#'
 @permission_classes([IsAuthenticated])
 def add_document(request: Request):
     try:
+        time_now = timezone.now()
         user = request.user
         pdf_file: UploadedFile = request.FILES.get('file')
 
         if pdf_file is None:
             raise Exception('PDF file was NOT provided')
 
-        blob = firebase_bucket.blob(pdf_file.name)
+        blob = firebase_bucket.blob(
+            f'{pdf_file.name}_{time_now.timestamp()}'
+        )
         blob.upload_from_file(
             pdf_file,
             content_type=pdf_file.content_type
@@ -51,7 +54,7 @@ def add_document(request: Request):
         document = Document(
             user=user,
             name=pdf_file.name,
-            upload_datetime=timezone.now(),
+            upload_datetime=timezone_now,
             number_of_pages=len(pdf_reader.pages),
             size=pdf_file.size,
             sentences=sentences
@@ -119,7 +122,16 @@ def get_page(request, id, page_number):
     try:
         document = Document.objects.get(pk=id)
 
-        pdf_reader = PdfReader(smth)
+        blob = firebase_bucket.blob(
+            f'{document.name}_{document.upload_datetime.timestamp()}'
+        )
+
+        # Download the blob contents into an in-memory bytes buffer
+        pdf_bytes = BytesIO()
+        blob.download_to_file(pdf_bytes)
+        pdf_bytes.seek(0)
+
+        pdf_reader = PdfReader(pdf_bytes)
         page = pdf_reader.pages[page_number]
 
     except Document.DoesNotExist as e:
