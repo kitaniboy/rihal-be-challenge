@@ -4,6 +4,7 @@ from django.core.files.uploadedfile import UploadedFile
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
+from gensim.summarization import summarize
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework import status
@@ -16,6 +17,7 @@ from app.models import Document
 from app.serializers import (
     OccurrencesSerializer,
     DocumentSerializer,
+    SummarySerializer,
     SearchSerializer,
     TopSerializer,
 )
@@ -200,6 +202,29 @@ def get_most_common(request, id):
         )
 
         return JsonResponse(top_words, safe=False)
+
+    except Document.DoesNotExist as e:
+        return Response(str(e), status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_summary(request, id):
+    try:
+        serializer = SummarySerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        document = Document.objects.get(pk=id)
+        summary = summarize(
+            document.sentences.replace(SENTENCE_DELIMETER, '\n'),
+            word_count=serializer.validated_data['count']
+        )
+        return Response(summary)
 
     except Document.DoesNotExist as e:
         return Response(str(e), status=status.HTTP_404_NOT_FOUND)

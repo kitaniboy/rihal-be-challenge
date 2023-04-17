@@ -29,6 +29,7 @@ from app.endpoints import (
     list_documents,
     get_sentences,
     add_document,
+    get_summary,
     word_search,
     get_page,
 )
@@ -44,6 +45,7 @@ urlpatterns = [
     path('document/<int:id>/sentences', get_sentences, name='entences'),
     path('document/<int:id>/search', get_occurrences, name='search_doc'),
     path('document/<int:id>/top', get_most_common, name='top'),
+    path('document/<int:id>/summary', get_summary, name='summary'),
     path('register/', register, name='register'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

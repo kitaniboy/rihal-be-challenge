@@ -37,3 +37,7 @@ class OccurrencesSerializer(serializers.Serializer):
 
 class TopSerializer(serializers.Serializer):
     count = serializers.IntegerField(min_value=1, default=5, required=False)
+
+
+class SummarySerializer(serializers.Serializer):
+    count = serializers.IntegerField(min_value=1, default=None, required=False)

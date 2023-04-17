@@ -8,9 +8,9 @@ docker compose up
 
 ## Approach Description
 
-As mentioned in the challenge specification, the main aim of this application is to **search** through files and **extract valuable insights** and this aim have been the central part when designing this solution. The Python programming language was chosen for it's well knon capabiliteis in data mining and analysis; for example, when it comes to sentance and word tokenization, and filtering stop words, these functionalities have been developed previously by expert developers with the aid of trained machine learning models, and made publicly available via the nltk python package. Hence, reinventing the wheel is strictly unnecessary.
+As mentioned in the challenge specification, the main aim of this application is to **search** through files and **extract valuable insights** and this aim have been the central part when designing this solution. Python was chosen for it's well known capabiliteis and huge community in data mining and backend development; for example, when it comes to sentence and word tokenization, and filtering stop words, these functionalities have been previously with the aid of trained machine learning models, and made publicly available via the nltk python package. Hence, reinventing the wheel is strictly unnecessary. In addition, a simple document summarizer feature has been added to provide a summary of a given text.
 
-&nbsp;&nbsp;&nbsp;&nbsp;Moreover, other decisions have been made when designing this solution. The integration of cloud-based object storage and a locally hosted database has been chosen to achive optimal balance between performance and scalability. Firebase was used for the long term storage of PDF documents for it's ease of use and recommendation from the specification. On the other hand, PostgreSQL was used for fast data access, a consept similar to Caching.
+&nbsp;&nbsp;&nbsp;&nbsp;Moreover, other decisions have been made when designing this solution. The integration of cloud-based object storage and a locally hosted database has been chosen to achive optimal balance between performance and scalability. Firebase was used for the long term storage of PDF documents for it's ease of use and quality service. On the other hand, PostgreSQL was used for fast retrival of data used in analysis, a consept similar to caching.
 
 ## Endpoints
 
@@ -24,6 +24,7 @@ The following table shows which RESTful HTTP methods are supported for each endp
 | `document/<int:id>` | ### | | | ### |
 | `document/<int:id>/page/<int:num>` | ### |
 | `document/<int:id>/sentences` | ### |
+| `document/<int:id>/summary` | ### |
 | `document/<int:id>/search` | ### |
 | `document/<int:id>/top` | ### |
 | `register/` | | ### |
@@ -42,6 +43,7 @@ The following table describes each endpoint:
 | `document/<int:id>/page/<int:num>` | | Get a specific page from a specific document as an image |
 | `document/<int:id>/sentences` | | Get the parsed sentences from a specific document |
 | `document/<int:id>/search` | **keyword:** string | Search for a keyword in a specific PDF document |
+| `document/<int:id>/summary` | **count:** int? | Get a summary limited by **count** (20% of the document default) |
 | `document/<int:id>/top` | **count:** int? | Get most common words (5 words by default) |
 | `register/` | **username:** string <br/> **password:** string | Create a new user |
 | `token/` | **username:** string <br/> **password:** string | Create a new token for the user |
