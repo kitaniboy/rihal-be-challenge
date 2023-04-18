@@ -1,14 +1,12 @@
 from __future__ import annotations
 from rest_framework.decorators import api_view, permission_classes
-from django.core.files.uploadedfile import UploadedFile
 from rest_framework.permissions import IsAuthenticated
+from django.http import FileResponse, JsonResponse
+from pdf2image.pdf2image import convert_from_bytes
 from rest_framework.response import Response
 from rest_framework.request import Request
 from gensim.summarization import summarize
-from pdf2image.pdf2image import convert_from_bytes
 from PyPDF2 import PdfReader, PdfWriter
-from django.http import FileResponse
-from django.http import JsonResponse
 from django.utils.timezone import now
 from rest_framework import status
 from io import BytesIO
@@ -38,7 +36,7 @@ def add_document(request: Request):
     try:
         time_now = now()
         user = request.user
-        pdf_file: UploadedFile = request.FILES.get('file')
+        pdf_file = request.FILES.get('file')
 
         if pdf_file is None:
             raise Exception('PDF file was NOT provided')
