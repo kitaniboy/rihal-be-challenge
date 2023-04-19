@@ -3,7 +3,7 @@
 ## How to run
 
 ```shell
-docker compose up
+docker-compose up --build
 ```
 
 ## Approach Description
@@ -49,6 +49,10 @@ The following table describes each endpoint:
 | `token/` | **username:** string <br/> **password:** string | Create a new token for the user |
 | `token/refresh/` | **refresh:**: string  | Refresh an access token by supplying refresh token |
 | `token/verify/` | **token:** string | Verify the authenticity of a token |
+
+### Important note
+
+In some cases adding a backslash '/' to an endpiont may **stop it from working**, e.g., `document/1/page/0` will work but `document/1/page/0/` will **not!** This also works the other way around, `document/` will work but `document` will **not!**
 
 ## Tokens Usage
 

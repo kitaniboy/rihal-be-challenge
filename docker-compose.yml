@@ -1,0 +1,27 @@
+version: "3.4"
+
+services:
+  rihaldjango:
+    image: rihalbechallenge
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=rihal_challenge_db
+      - POSTGRES_USER=postgreuser
+      - POSTGRES_PASSWORD=SEeVw*r8eMYbdv%koPgiJ105n
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+
+networks:
+    djangonetwork:
+        driver: bridge

@@ -3,6 +3,7 @@ from nltk import sent_tokenize, word_tokenize, download
 from nltk.corpus import stopwords
 from PyPDF2 import PdfReader
 from collections import Counter
+from re import compile
 
 
 # Define the stop words
@@ -13,9 +14,10 @@ stop_words = set(stopwords.words('english'))
 
 def get_pasrsed_sentences(pdf_reader: PdfReader):
     num_pages = len(pdf_reader.pages)
+    pattern = compile(r'(\n|\\n)')
+
     full_text = ''.join(
-        pdf_reader.pages[page_number].extract_text()
-        .replace('\n', '').replace('\\n', '')
+        pattern.sub('', pdf_reader.pages[page_number].extract_text())
         for page_number in range(num_pages)
     )
 
@@ -43,7 +45,9 @@ def get_top_words(text: str, num_words=5):
     filtered_words = [
         word.lower()
         for word in words
-        if word.isalpha() and word.lower() not in stop_words
+        if word.isalpha()
+        and word.lower() not in stop_words
+        and len(word) > 1
     ]
 
     # Count word occurrences and find the top num_words
