@@ -50,7 +50,7 @@ The following table describes each endpoint:
 | `document/<int:id>/top` | **count:** int? <br/> **start_page:** int?  <br/> **end_page:** int? | Get most common words (5 words by default) (including `start_page` but not `end_page`) |
 | `document/<int:id>/page/<int:num>` | | Get a specific page from a specific document as an image (`num` is zero indexed)|
 
-### Important Note
+### ⚠️ Important Note
 
 In some cases adding a backslash '/' to an endpiont may **stop it from working**, e.g., `document/1/page/0` will work but `document/1/page/0/` might **not!** This also works the other way around, `document/` will work but `document` might **not!**
 
