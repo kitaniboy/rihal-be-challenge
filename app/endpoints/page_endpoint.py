@@ -5,6 +5,7 @@ from pdf2image.pdf2image import convert_from_bytes
 from rest_framework.response import Response
 from PyPDF2 import PdfReader, PdfWriter
 from firebase import firebase_bucket
+from django.http import FileResponse
 from rest_framework import status
 from io import BytesIO
 
@@ -15,7 +16,8 @@ from app.models import Document
 @permission_classes([IsAuthenticated])
 def get_page(request, id, num):
     try:
-        document = Document.objects.get(pk=id)
+        user = request.user
+        document = user.document_set.get(pk=id)
 
         blob = firebase_bucket.blob(
             f'{document.name}_{document.upload_datetime.timestamp()}'

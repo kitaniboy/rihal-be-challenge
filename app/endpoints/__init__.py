@@ -84,7 +84,8 @@ def add_document(request: Request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_documents(request):
-    documents = Document.objects.all()
+    user = request.user
+    documents = user.document_set.all()
     serializer = DocumentSerializer(documents, many=True)
     return JsonResponse(serializer.data, safe=False)
 
@@ -92,6 +93,7 @@ def list_documents(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def word_search(request):
+    user = request.user
     serializer = SearchSerializer(data=request.data)
 
     if not serializer.is_valid():
@@ -103,7 +105,9 @@ def word_search(request):
     keyword = serializer.validated_data['keyword']
     documents_list = []
 
-    for document in Document.objects.all():
+    for document in user.document_set.all():
+        occurrences = []
+
         for page_number, page_sentences in enumerate(document.sentences.split(
             PAGE_DELIMETER
         )):
@@ -112,11 +116,18 @@ def word_search(request):
             if not sentences:
                 continue
 
-            documents_list.append({
-                'id': document.pk,
+            occurrences.append({
                 'page_number': page_number,
                 'sentences': sentences
             })
+
+        if not occurrences:
+            continue
+
+        documents_list.append({
+            'id': document.pk,
+            'occurrences': occurrences
+        })
 
     return JsonResponse(documents_list, safe=False)
 
@@ -125,7 +136,8 @@ def word_search(request):
 @permission_classes([IsAuthenticated])
 def word_doc_search(request, id):
     try:
-        document = Document.objects.get(pk=id)
+        user = request.user
+        document = user.document_set.get(pk=id)
         serializer = SearchSerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -160,7 +172,8 @@ def word_doc_search(request, id):
 @permission_classes([IsAuthenticated])
 def get_sentences(request, id):
     try:
-        document = Document.objects.get(pk=id)
+        user = request.user
+        document = user.document_set.get(pk=id)
 
         serializer = SentencesSerializer(data=request.data)
 
@@ -171,10 +184,10 @@ def get_sentences(request, id):
             )
 
         start_page = serializer.validated_data['start_page']
-        last_page = serializer.validated_data['last_page']
+        end_page = serializer.validated_data['end_page']
 
         requested_pages = PAGE_DELIMETER.join(
-            document.sentences.split(PAGE_DELIMETER)[start_page:last_page]
+            document.sentences.split(PAGE_DELIMETER)[start_page:end_page]
         )
 
         sentences = SPLIT_PATTERN.split(requested_pages)
@@ -188,7 +201,8 @@ def get_sentences(request, id):
 @permission_classes([IsAuthenticated])
 def get_most_common(request, id):
     try:
-        document = Document.objects.get(pk=id)
+        user = request.user
+        document = user.document_set.get(pk=id)
         serializer = SummarySerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -199,10 +213,10 @@ def get_most_common(request, id):
 
         count = serializer.validated_data['count']
         start_page = serializer.validated_data['start_page']
-        last_page = serializer.validated_data['last_page']
+        end_page = serializer.validated_data['end_page']
 
         sentences = '\n'.join(
-            document.sentences.split(PAGE_DELIMETER)[start_page:last_page]
+            document.sentences.split(PAGE_DELIMETER)[start_page:end_page]
         )
 
         top_words = get_top_words(
@@ -220,7 +234,8 @@ def get_most_common(request, id):
 @permission_classes([IsAuthenticated])
 def get_summary(request, id):
     try:
-        document = Document.objects.get(pk=id)
+        user = request.user
+        document = user.document_set.get(pk=id)
         serializer = SummarySerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -231,10 +246,10 @@ def get_summary(request, id):
 
         count = serializer.validated_data['count']
         start_page = serializer.validated_data['start_page']
-        last_page = serializer.validated_data['last_page']
+        end_page = serializer.validated_data['end_page']
 
         sentences = '\n'.join(
-            document.sentences.split(PAGE_DELIMETER)[start_page:last_page]
+            document.sentences.split(PAGE_DELIMETER)[start_page:end_page]
         )
 
         summary = summarize(

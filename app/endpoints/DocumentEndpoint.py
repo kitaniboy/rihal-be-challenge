@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from firebase import firebase_bucket
@@ -8,10 +9,12 @@ from app.models import Document
 
 
 class DocumentEndpoint(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, id):
         try:
-            document = Document.objects.get(pk=id)
+            user = request.user
+            document = user.document_set.get(pk=id)
             serializer = DocumentSerializer(document)
             return Response(serializer.data)
 
@@ -20,7 +23,8 @@ class DocumentEndpoint(APIView):
 
     def delete(self, request, id):
         try:
-            document = Document.objects.get(pk=id)
+            user = request.user
+            document = user.document_set.get(pk=id)
 
             blob = firebase_bucket.blob(
                 f'{document.name}_{document.upload_datetime.timestamp()}'
@@ -33,4 +37,7 @@ class DocumentEndpoint(APIView):
         except Document.DoesNotExist as e:
             return Response(str(e), status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                str(e),
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
