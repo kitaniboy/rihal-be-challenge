@@ -6,6 +6,8 @@
 docker-compose up --build
 ```
 
+After running this, the service should be available from `http://localhost:8000/`
+
 ## Approach Description
 
 As mentioned in the challenge specification, the main aim of this application is to **search** through files and **extract valuable insights** and this aim have been the central part when designing this solution. Python was chosen for it's well known capabiliteis and huge community in data mining and backend development; for example, when it comes to sentence and word tokenization, and filtering stop words, these functionalities have been previously with the aid of trained machine learning models, and made publicly available via the nltk python package. Hence, reinventing the wheel is strictly unnecessary. In addition, a simple document summarizer feature has been added to provide a summary of a given text.
@@ -50,9 +52,11 @@ The following table describes each endpoint:
 | `document/<int:id>/top` | **count:** int? <br/> **start_page:** int?  <br/> **end_page:** int? | Get most common words (5 words by default) (including `start_page` but not `end_page`) |
 | `document/<int:id>/page/<int:num>` | | Get a specific page from a specific document as an image (`num` is zero indexed)|
 
-### ⚠️ Important Note
+### ⚠️ Important Notes
 
 In some cases adding a backslash '/' to an endpiont may **stop it from working**, e.g., `document/1/page/0` will work but `document/1/page/0/` might **not!** This also works the other way around, `document/` will work but `document` might **not!**
+
+&nbsp;&nbsp;&nbsp;&nbsp;Another important note is that a PDF file must be sent using `form-data` body and `file` as key.
 
 ## Tokens Usage
 

@@ -36,5 +36,9 @@ class SentencesSerializer(serializers.Serializer):
     end_page = serializers.IntegerField(min_value=0, default=None, required=False)
 
 
+class TopSerializer(SentencesSerializer):
+    count = serializers.IntegerField(min_value=1, default=5, required=False)
+
+
 class SummarySerializer(SentencesSerializer):
     count = serializers.IntegerField(min_value=1, default=None, required=False)

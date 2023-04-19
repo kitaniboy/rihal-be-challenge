@@ -17,6 +17,7 @@ from app.serializers import (
     DocumentSerializer,
     SummarySerializer,
     SearchSerializer,
+    TopSerializer,
 )
 from app.miners import (
     get_pasrsed_pages_sentences,
@@ -203,7 +204,7 @@ def get_most_common(request, id):
     try:
         user = request.user
         document = user.document_set.get(pk=id)
-        serializer = SummarySerializer(data=request.data)
+        serializer = TopSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response(
