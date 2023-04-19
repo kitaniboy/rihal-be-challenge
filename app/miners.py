@@ -5,26 +5,25 @@ from PyPDF2 import PdfReader
 from collections import Counter
 from re import compile
 
+from app.constants import SENTENCE_DELIMETER
+
 
 # Define the stop words
 download('punkt')
 download('stopwords')
 stop_words = set(stopwords.words('english'))
+newline_pattern = compile(r'(\n|\\n)')
 
 
-def get_pasrsed_sentences(pdf_reader: PdfReader):
-    num_pages = len(pdf_reader.pages)
-    pattern = compile(r'(\n|\\n)')
+def get_pasrsed_pages_sentences(pdf_reader: PdfReader):
+    for page_object in pdf_reader.pages:
+        page_text = ''.join(
+            newline_pattern.sub('', page_object.extract_text())
+        )
+        # Tokenize the page text into sentences
+        sentences = sent_tokenize(page_text)
 
-    full_text = ''.join(
-        pattern.sub('', pdf_reader.pages[page_number].extract_text())
-        for page_number in range(num_pages)
-    )
-
-    # Tokenize the page text into sentences
-    sentences = sent_tokenize(full_text)
-
-    yield from sentences
+        yield SENTENCE_DELIMETER.join(sentences)
 
 
 def keyword_search(text: str, keyword: str):
@@ -32,7 +31,7 @@ def keyword_search(text: str, keyword: str):
     # Check each sentence for the keyword
     return [
         sentence
-        for sentence in text.split('#$#')
+        for sentence in text.split(SENTENCE_DELIMETER)
         if keyword_lower in sentence.lower()
     ]
 

@@ -18,41 +18,41 @@ The following table shows which RESTful HTTP methods are supported for each endp
 
 | Endpoint | GET | POST | PUT | DELETE |
 | --- | --- | --- | --- | --- |
-| `document/` | | ### |
-| `documents/` | ### |
-| `search/` | ### |
-| `document/<int:id>` | ### | | | ### |
-| `document/<int:id>/page/<int:num>` | ### |
-| `document/<int:id>/sentences` | ### |
-| `document/<int:id>/summary` | ### |
-| `document/<int:id>/search` | ### |
-| `document/<int:id>/top` | ### |
 | `register/` | | ### |
 | `token/` | | ### |
 | `token/refresh/` | ### |
 | `token/verify/` | ### |
+| `document/` | | ### |
+| `documents/` | ### |
+| `search/` | ### |
+| `document/<int:id>` | ### | | | ### |
+| `document/<int:id>/search` | ### |
+| `document/<int:id>/sentences` | ### |
+| `document/<int:id>/summary` | ### |
+| `document/<int:id>/top` | ### |
+| `document/<int:id>/page/<int:num>` | ### |
 
 The following table describes each endpoint:
 
 | Endpoint | Request body | Description |
 | --- | --- | --- |
-| `document/` | **Content-Type:** multipart/form-data <br/> **file:** PDF file | Send and save a PDF file under the user |
-| `documents/` | | Get all PDF files details saved under the user |
-| `search/` | **keyword:** string | Search for a keyword in all PDF documents |
-| `document/<int:id>` | | Get a specific PDF document details |
-| `document/<int:id>/page/<int:num>` | | Get a specific page from a specific document as an image (`num` is zero indexed)|
-| `document/<int:id>/sentences` | | Get the parsed sentences from a specific document |
-| `document/<int:id>/summary` | **count:** int? | Get a summary limited by **count** (20% of the document default) |
-| `document/<int:id>/search` | **keyword:** string | Search for a keyword in a specific PDF document |
-| `document/<int:id>/top` | **count:** int? | Get most common words (5 words by default) |
 | `register/` | **username:** string <br/> **password:** string | Create a new user |
 | `token/` | **username:** string <br/> **password:** string | Create a new token for the user |
 | `token/refresh/` | **refresh:**: string  | Refresh an access token by supplying refresh token |
 | `token/verify/` | **token:** string | Verify the authenticity of a token |
+| `document/` | **Content-Type:** multipart/form-data <br/> **file:** PDF file | Send and save a PDF file under the user |
+| `documents/` | | Get all PDF files details saved under the user |
+| `search/` | **keyword:** string | Search for a keyword in all PDF documents |
+| `document/<int:id>` | | Get a specific PDF document details |
+| `document/<int:id>/search` | **keyword:** string | Search for a keyword in a specific PDF document |
+| `document/<int:id>/sentences` | **start_page:** int? <br/> **end_page:** int? | Get the parsed sentences from a specific document (including `start_page` but not `end_page`) |
+| `document/<int:id>/summary` | **count:** int? <br/> **start_page:** int? <br/> **end_page:** int? | Get a summary limited by **count** (20% of the document default) (including `start_page` but not `end_page`) |
+| `document/<int:id>/top` | **count:** int? <br/> **start_page:** int?  <br/> **end_page:** int? | Get most common words (5 words by default) (including `start_page` but not `end_page`) |
+| `document/<int:id>/page/<int:num>` | | Get a specific page from a specific document as an image (`num` is zero indexed)|
 
-### Important note
+### Important Note
 
-In some cases adding a backslash '/' to an endpiont may **stop it from working**, e.g., `document/1/page/0` will work but `document/1/page/0/` will **not!** This also works the other way around, `document/` will work but `document` will **not!**
+In some cases adding a backslash '/' to an endpiont may **stop it from working**, e.g., `document/1/page/0` will work but `document/1/page/0/` might **not!** This also works the other way around, `document/` will work but `document` might **not!**
 
 ## Tokens Usage
 

@@ -31,13 +31,10 @@ class SearchSerializer(serializers.Serializer):
     keyword = serializers.CharField()
 
 
-class OccurrencesSerializer(serializers.Serializer):
-    keyword = serializers.CharField()
+class SentencesSerializer(serializers.Serializer):
+    start_page = serializers.IntegerField(min_value=0, default=None, required=False)
+    end_page = serializers.IntegerField(min_value=0, default=None, required=False)
 
 
-class TopSerializer(serializers.Serializer):
-    count = serializers.IntegerField(min_value=1, default=5, required=False)
-
-
-class SummarySerializer(serializers.Serializer):
+class SummarySerializer(SentencesSerializer):
     count = serializers.IntegerField(min_value=1, default=None, required=False)
